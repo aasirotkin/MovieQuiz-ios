@@ -15,14 +15,18 @@ protocol MoviesLoading {
 
 struct MoviesLoader: MoviesLoading {
 
-    private let networkClient = NetworkClient()
+    private var networkClient: NetworkRouting?
 
     private enum MovieLoaderError: Error {
         case emptyMovies
     }
 
+    init(networkClient: NetworkRouting?) {
+        self.networkClient = networkClient
+    }
+
     func loadMovies(handler: @escaping (Result<MostPopularMovies, Error>) -> Void) {
-        networkClient.fetch(url: mostPopularMoviesUrl) { result in
+        networkClient?.fetch(url: mostPopularMoviesUrl) { result in
             switch result {
             case .success(let data):
                 do {

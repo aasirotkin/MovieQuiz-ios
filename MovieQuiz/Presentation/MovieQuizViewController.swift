@@ -69,7 +69,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private func initAbstractClasses() {
-        questionFactory = QuestionFactoryImdb(moviesLoader: MoviesLoader())
+        questionFactory = QuestionFactoryImdb(
+            moviesLoader: MoviesLoader(networkClient: NetworkClient()))
         questionFactory?.setDelegate(delegate: self)
         statisticService = StatisticServiceUserDefaults()
         alertPresenter = AlertPresenter()
