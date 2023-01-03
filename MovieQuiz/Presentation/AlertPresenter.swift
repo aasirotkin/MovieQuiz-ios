@@ -14,6 +14,8 @@ final class AlertPresenter {
             title: model.title,
             message: model.message,
             preferredStyle: .alert)
+        alert.view.accessibilityIdentifier = "ResultedAlert"
+        alert.view.accessibilityValue = "ResultedAlert"
 
         let action = UIAlertAction(
             title: model.buttonText, style: .default) { [model] _ in

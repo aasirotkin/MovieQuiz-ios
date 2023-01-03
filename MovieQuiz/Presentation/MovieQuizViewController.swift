@@ -14,9 +14,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var correctAnswers = 0
 
     private let questionsAmount: Int = 10
-    private var questionFactory: QuestionFactoryProtocol?;
-    private var statisticService: StatisticServiceProtocol?;
-    private var alertPresenter: AlertPresenter?;
+    private var questionFactory: QuestionFactoryProtocol?
+    private var statisticService: StatisticServiceProtocol?
+    private var alertPresenter: AlertPresenter?
 
     func didRecieveNextQuestion(question: QuizQuestion?) {
         guard let question = question else {
