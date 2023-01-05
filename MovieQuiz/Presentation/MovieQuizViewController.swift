@@ -10,10 +10,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
 
     private var currentQuestion: QuizQuestion? = nil
-    private var currentQuestionIndex = 0
     private var correctAnswers = 0
 
-    private let questionsAmount: Int = 10
+    private let presenter = MovieQuizPresenter()
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol?
     private var alertPresenter: AlertPresenter?
@@ -27,7 +26,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             guard let self = self else {
                 return
             }
-            self.show(quiz: self.convert(model: self.currentQuestion!))
+            self.show(quiz: self.presenter.convert(model: self.currentQuestion!))
         }
     }
 
@@ -77,7 +76,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private func initFirstTime() {
-        currentQuestionIndex = 0
+        presenter.resetQuestionIndex()
         correctAnswers = 0
     }
 
@@ -103,14 +102,14 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func showNextQuestionOrResults() {
         makeButtonsEnable(isEnable: true)
-        if currentQuestionIndex == (questionsAmount - 1) {
+        if presenter.isLastQuestion() {
             if let stat = statisticService {
-                stat.store(correct: correctAnswers, total: questionsAmount)
+                stat.store(correct: correctAnswers, total: presenter.questionsAmount)
             }
             showFinalResult()
             initFirstTime()
         } else {
-            currentQuestionIndex += 1
+            presenter.switchToNextQuestion()
             showQuestionImpl()
         }
     }
@@ -143,7 +142,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
 
     private func createTextResult() -> String {
-        let currentResult = "Ваш результат: \(correctAnswers) из \(questionsAmount)"
+        let currentResult =
+            "Ваш результат: \(correctAnswers) из \(presenter.questionsAmount)"
         guard let stat = statisticService else {
             return currentResult
         }
@@ -165,13 +165,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func createAlertModel() -> AlertModel {
         return convert(model: createResultModel())
-    }
-
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
 
     private func convert(model: QuizResultsViewModel) -> AlertModel {
