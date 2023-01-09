@@ -1,6 +1,9 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController:
+    UIViewController,
+    QuestionFactoryDelegate,
+    MovieQuizViewControllerProtocol {
 
     @IBOutlet private var counterLabel: UILabel!
     @IBOutlet private var imageView: UIImageView!
@@ -10,7 +13,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet private var activityIndicator: UIActivityIndicatorView!
 
     private var presenter: MovieQuizPresenter?
-    private var statisticService: StatisticServiceProtocol?
     private var alertPresenter: AlertPresenter?
 
     func didRecieveNextQuestion(question: QuizQuestion?) {
@@ -34,15 +36,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         textLabel.text = step.question
     }
 
-    func showFinalResult() {
+    func show(quiz alertModel: AlertModel) {
         guard let presenter = presenter else { return }
-        if let stat = statisticService {
-            stat.store(
-                correct: presenter.correctAnswers,
-                total: presenter.questionsAmount)
-        }
         alertPresenter?.show(
-            model: presenter.createAlertModel(stat: statisticService),
+            model: alertModel,
             controller: self)
         presenter.restartGame()
     }
@@ -80,7 +77,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
 
     private func initAbstractClasses() {
         presenter = MovieQuizPresenter(controller: self)
-        statisticService = StatisticServiceUserDefaults()
         alertPresenter = AlertPresenter()
     }
 
@@ -108,7 +104,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         showLoadingIndicator(isLoad: false)
         guard let presenter = presenter else { return }
         alertPresenter?.show(
-            model: presenter.createAlertModel(message: message),
+            model: presenter.createErrorAlertModel(message: message),
             controller: self)
     }
 

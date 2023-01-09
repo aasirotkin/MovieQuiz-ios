@@ -14,6 +14,7 @@ final class MovieQuizPresenter {
 
     private weak var controller: MovieQuizViewController?
     private var questionFactory: QuestionFactoryProtocol?
+    private var statisticService: StatisticServiceProtocol?
 
     private var currentQuestion: QuizQuestion? = nil
     private var currentQuestionIndex = 0
@@ -24,6 +25,7 @@ final class MovieQuizPresenter {
         questionFactory = QuestionFactoryImdb(
             moviesLoader: MoviesLoader(networkClient: NetworkClient()))
         questionFactory?.setDelegate(delegate: controller)
+        statisticService = StatisticServiceUserDefaults()
     }
 
     var correctAnswers: Int {
@@ -66,11 +68,7 @@ final class MovieQuizPresenter {
         questionFactory?.requestNextQuestion()
     }
 
-    func createAlertModel(stat: StatisticServiceProtocol?) -> AlertModel {
-        return convert(model: createResultModel(stat: stat))
-    }
-
-    func createAlertModel(message: String) -> AlertModel {
+    func createErrorAlertModel(message: String) -> AlertModel {
         AlertModel(
             title: "Ошибка",
             message: message,
@@ -96,11 +94,19 @@ final class MovieQuizPresenter {
     private func showNextQuestionOrResults() {
         controller?.setEnabled(isEnable: true)
         if currentQuestionIndex == (questionsAmount - 1) {
-            controller?.showFinalResult()
+            saveStat()
+            controller?.show(quiz: createFinalAlertModel(stat: statisticService))
         } else {
             currentQuestionIndex += 1
             requestNextQuestion()
         }
+    }
+
+    private func saveStat() {
+        guard let stat = statisticService else { return }
+        stat.store(
+            correct: correctAnswers,
+            total: questionsAmount)
     }
 
     private func didAnswer(
@@ -110,6 +116,10 @@ final class MovieQuizPresenter {
             return
         }
         showAnswerResult(isCorrect: currentQuestion.correctAnswer == correctAnswer)
+    }
+
+    private func createFinalAlertModel(stat: StatisticServiceProtocol?) -> AlertModel {
+        return convert(model: createResultModel(stat: stat))
     }
 
     private func createTextResult(stat: StatisticServiceProtocol?) -> String {
