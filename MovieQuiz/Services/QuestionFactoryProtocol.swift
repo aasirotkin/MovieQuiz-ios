@@ -15,6 +15,4 @@ protocol QuestionFactoryProtocol {
 
     func loadData()
 
-    
-
 }

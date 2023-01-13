@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-final class MovieQuizPresenter {
+final class MovieQuizPresenter : QuestionFactoryDelegate {
 
     let questionsAmount: Int = 10
 
-    private weak var controller: MovieQuizViewController?
+    private weak var controller: MovieQuizViewControllerProtocol?
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol?
 
@@ -20,11 +20,11 @@ final class MovieQuizPresenter {
     private var currentQuestionIndex = 0
     private var correctAnswersPrivate = 0
 
-    init (controller: MovieQuizViewController) {
+    init (controller: MovieQuizViewControllerProtocol) {
         self.controller = controller
         questionFactory = QuestionFactoryImdb(
             moviesLoader: MoviesLoader(networkClient: NetworkClient()))
-        questionFactory?.setDelegate(delegate: controller)
+        questionFactory?.setDelegate(delegate: self)
         statisticService = StatisticServiceUserDefaults()
     }
 
@@ -35,6 +35,7 @@ final class MovieQuizPresenter {
     }
 
     func startGame() {
+        controller?.showProgress(isShown: true)
         questionFactory?.loadData()
     }
 
@@ -64,8 +65,24 @@ final class MovieQuizPresenter {
         }
     }
 
-    func requestNextQuestion() {
-        questionFactory?.requestNextQuestion()
+    func didLoadDataFromServer() {
+        controller?.showProgress(isShown: false)
+        requestNextQuestion()
+    }
+
+    func didFailToLoadData(with error: Error) {
+        controller?.showProgress(isShown: false)
+        controller?.showError(message: error.localizedDescription)
+        startGame()
+    }
+
+    func convertToAlertModel(result: QuizResultsViewModel) -> AlertModel {
+        return AlertModel(
+            title: result.title,
+            message: result.text,
+            buttonText: result.buttonText) { [weak self] in
+                self?.requestNextQuestion()
+            }
     }
 
     func createErrorAlertModel(message: String) -> AlertModel {
@@ -76,15 +93,16 @@ final class MovieQuizPresenter {
             }
     }
 
+    private func requestNextQuestion() {
+        questionFactory?.requestNextQuestion()
+    }
+
     private func showAnswerResult(isCorrect: Bool) {
         controller?.setEnabled(isEnable: false)
         if isCorrect {
             correctAnswersPrivate += 1
-            controller?.highlightResult(isCorrect: isCorrect)
         }
-        else {
-            controller?.highlightResult(isCorrect: isCorrect)
-        }
+        controller?.highlightResult(isCorrect: isCorrect)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
             guard let self = self else { return }
             self.showNextQuestionOrResults()
@@ -95,7 +113,7 @@ final class MovieQuizPresenter {
         controller?.setEnabled(isEnable: true)
         if currentQuestionIndex == (questionsAmount - 1) {
             saveStat()
-            controller?.show(quiz: createFinalAlertModel(stat: statisticService))
+            controller?.show(quiz: createResultModel(stat: statisticService))
         } else {
             currentQuestionIndex += 1
             requestNextQuestion()
@@ -118,10 +136,6 @@ final class MovieQuizPresenter {
         showAnswerResult(isCorrect: currentQuestion.correctAnswer == correctAnswer)
     }
 
-    private func createFinalAlertModel(stat: StatisticServiceProtocol?) -> AlertModel {
-        return convert(model: createResultModel(stat: stat))
-    }
-
     private func createTextResult(stat: StatisticServiceProtocol?) -> String {
         let currentResult =
             "Ваш результат: \(correctAnswersPrivate) из \(questionsAmount)"
@@ -142,15 +156,6 @@ final class MovieQuizPresenter {
             title: "Этот раунд окончен!",
             text: createTextResult(stat: stat),
             buttonText: "Сыграть ещё раз")
-    }
-
-    private func convert(model: QuizResultsViewModel) -> AlertModel {
-        return AlertModel(
-            title: model.title,
-            message: model.text,
-            buttonText: model.buttonText) { [weak self] in
-                self?.requestNextQuestion()
-            }
     }
 
     private func convert(model: QuizQuestion) -> QuizStepViewModel {

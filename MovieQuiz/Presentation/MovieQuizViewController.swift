@@ -2,7 +2,6 @@ import UIKit
 
 final class MovieQuizViewController:
     UIViewController,
-    QuestionFactoryDelegate,
     MovieQuizViewControllerProtocol {
 
     @IBOutlet private var counterLabel: UILabel!
@@ -15,20 +14,6 @@ final class MovieQuizViewController:
     private var presenter: MovieQuizPresenter?
     private var alertPresenter: AlertPresenter?
 
-    func didRecieveNextQuestion(question: QuizQuestion?) {
-        presenter?.didRecieveNextQuestion(question: question)
-    }
-
-    func didLoadDataFromServer() {
-        showLoadingIndicator(isLoad: false)
-        presenter?.requestNextQuestion()
-    }
-
-    func didFailToLoadData(with error: Error) {
-        showNetworkError(message: error.localizedDescription)
-        loadMoviesData()
-    }
-
     func show(quiz step: QuizStepViewModel) {
         configureImageLayer(thickness: 0, color: UIColor.ypWhite)
         counterLabel.text = step.questionNumber
@@ -36,12 +21,23 @@ final class MovieQuizViewController:
         textLabel.text = step.question
     }
 
-    func show(quiz alertModel: AlertModel) {
+    func show(quiz result: QuizResultsViewModel) {
         guard let presenter = presenter else { return }
         alertPresenter?.show(
-            model: alertModel,
+            model: presenter.convertToAlertModel(result: result),
             controller: self)
         presenter.restartGame()
+    }
+
+    func showProgress(isShown: Bool) {
+        showLoadingIndicator(isLoad: isShown)
+    }
+
+    func showError(message: String) {
+        guard let presenter = presenter else { return }
+        alertPresenter?.show(
+            model: presenter.createErrorAlertModel(message: message),
+            controller: self)
     }
 
     func setEnabled(isEnable: Bool) {
@@ -59,8 +55,7 @@ final class MovieQuizViewController:
         super.viewDidLoad()
         setBaseProperties()
         initAbstractClasses()
-        loadMoviesData()
-        presenter?.requestNextQuestion()
+        presenter?.startGame()
     }
 
     @IBAction private func yesButtonClicked(_ sender: Any) {
@@ -80,11 +75,6 @@ final class MovieQuizViewController:
         alertPresenter = AlertPresenter()
     }
 
-    private func loadMoviesData() {
-        showLoadingIndicator(isLoad: true)
-        presenter?.startGame()
-    }
-
     private func configureImageLayer(thickness: Int, color: UIColor) {
         imageView.layer.masksToBounds = true
         imageView.layer.borderWidth = CGFloat(thickness)
@@ -98,14 +88,6 @@ final class MovieQuizViewController:
         } else {
             activityIndicator.stopAnimating()
         }
-    }
-
-    private func showNetworkError(message: String) {
-        showLoadingIndicator(isLoad: false)
-        guard let presenter = presenter else { return }
-        alertPresenter?.show(
-            model: presenter.createErrorAlertModel(message: message),
-            controller: self)
     }
 
 }
