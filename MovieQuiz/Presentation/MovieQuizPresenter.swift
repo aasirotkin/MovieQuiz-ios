@@ -85,6 +85,13 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
             }
     }
 
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
+        return QuizStepViewModel(
+            image: UIImage(data: model.image) ?? UIImage(),
+            question: model.text,
+            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
+    }
+
     func createErrorAlertModel(message: String) -> AlertModel {
         AlertModel(
             title: "Ошибка",
@@ -156,13 +163,6 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
             title: "Этот раунд окончен!",
             text: createTextResult(stat: stat),
             buttonText: "Сыграть ещё раз")
-    }
-
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        return QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
     }
 
 }
