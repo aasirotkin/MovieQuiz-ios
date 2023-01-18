@@ -34,7 +34,7 @@ final class MovieQuizUITests: XCTestCase {
         buttonClickedTest(buttonName: UINamesHelper.buttonNo.rawValue)
     }
 
-    func testResultedAlert() {
+    func testResultedAlertAppeared() {
         for _ in 0..<MovieQuizConstants.questionsAmount {
             app.buttons[UINamesHelper.buttonYes.rawValue].tap()
             sleep(2)
@@ -47,6 +47,22 @@ final class MovieQuizUITests: XCTestCase {
         XCTAssertTrue(
             alert.buttons.firstMatch.label ==
             UINamesHelper.resultedAlertFinalButtonText.rawValue)
+    }
+
+    func testStartNewQuiz() {
+        for _ in 0..<MovieQuizConstants.questionsAmount {
+            app.buttons[UINamesHelper.buttonYes.rawValue].tap()
+            sleep(2)
+        }
+        sleep(3)
+        let alertBefore = app.alerts[UINamesHelper.resultedAlert.rawValue]
+        XCTAssertTrue(alertBefore.exists)
+        alertBefore.buttons.firstMatch.tap()
+        let alertAfter = app.alerts[UINamesHelper.resultedAlert.rawValue]
+        XCTAssertFalse(alertAfter.exists)
+        let indexLabel = app.staticTexts[UINamesHelper.indexLabel.rawValue]
+        let labelText = UINamesHelper.indexLabelInitialText.rawValue
+        XCTAssertTrue(indexLabel.label == labelText)
     }
 
     private func buttonClickedTest(buttonName: String) {

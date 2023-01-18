@@ -10,6 +10,7 @@ enum UINamesHelper : String {
     case buttonNo = "No"
     case previewImage = "Poster"
     case indexLabel = "Index"
+    case indexLabelInitialText = "1/10"
     case indexLabelTextAfterFirstAnswer = "2/10"
     case resultedAlert = "ResultedAlert"
     case resultedAlertFinalTitleText = "Этот раунд окончен!"
