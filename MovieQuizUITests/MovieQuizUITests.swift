@@ -26,37 +26,37 @@ final class MovieQuizUITests: XCTestCase {
         app = nil
     }
 
-    func testYesButton() {
-        testButtonsImpl(buttonName: UINamesHelper.ButtonYes.rawValue)
+    func testYesButtonClicked() {
+        buttonClickedTest(buttonName: UINamesHelper.buttonYes.rawValue)
     }
 
-    func testNoButton() {
-        testButtonsImpl(buttonName: UINamesHelper.ButtonNo.rawValue)
+    func testNoButtonClicked() {
+        buttonClickedTest(buttonName: UINamesHelper.buttonNo.rawValue)
     }
 
     func testResultedAlert() {
         for _ in 0..<MovieQuizConstants.questionsAmount {
-            app.buttons[UINamesHelper.ButtonYes.rawValue].tap()
+            app.buttons[UINamesHelper.buttonYes.rawValue].tap()
             sleep(2)
         }
         sleep(3)
-        let alert = app.alerts[UINamesHelper.ResultedAlert.rawValue]
+        let alert = app.alerts[UINamesHelper.resultedAlert.rawValue]
         XCTAssertTrue(alert.exists)
         XCTAssertTrue(
-            alert.label == UINamesHelper.ResultedAlertFinalTitleText.rawValue)
+            alert.label == UINamesHelper.resultedAlertFinalTitleText.rawValue)
         XCTAssertTrue(
             alert.buttons.firstMatch.label ==
-            UINamesHelper.ResultedAlertFinalButtonText.rawValue)
+            UINamesHelper.resultedAlertFinalButtonText.rawValue)
     }
 
-    func testButtonsImpl(buttonName: String) {
-        let posterBefore = app.images[UINamesHelper.PreviewImage.rawValue]
+    private func buttonClickedTest(buttonName: String) {
+        let posterBefore = app.images[UINamesHelper.previewImage.rawValue]
         app.buttons[buttonName].tap()
-        let posterAfter = app.images[UINamesHelper.PreviewImage.rawValue]
-        let indexLabel = app.staticTexts[UINamesHelper.IndexLabel.rawValue]
+        let posterAfter = app.images[UINamesHelper.previewImage.rawValue]
+        let indexLabel = app.staticTexts[UINamesHelper.indexLabel.rawValue]
         sleep(3)
         XCTAssertFalse(posterBefore == posterAfter)
-        let labelText = UINamesHelper.IndexLabelTextAfterFirstAnswer.rawValue
+        let labelText = UINamesHelper.indexLabelTextAfterFirstAnswer.rawValue
         XCTAssertTrue(indexLabel.label == labelText)
     }
 

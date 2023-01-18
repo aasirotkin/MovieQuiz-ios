@@ -6,12 +6,12 @@
 //
 
 enum UINamesHelper : String {
-    case ButtonYes = "Yes"
-    case ButtonNo = "No"
-    case PreviewImage = "Poster"
-    case IndexLabel = "Index"
-    case IndexLabelTextAfterFirstAnswer = "2/10"
-    case ResultedAlert = "ResultedAlert"
-    case ResultedAlertFinalTitleText = "Этот раунд окончен!"
-    case ResultedAlertFinalButtonText = "Сыграть ещё раз"
+    case buttonYes = "Yes"
+    case buttonNo = "No"
+    case previewImage = "Poster"
+    case indexLabel = "Index"
+    case indexLabelTextAfterFirstAnswer = "2/10"
+    case resultedAlert = "ResultedAlert"
+    case resultedAlertFinalTitleText = "Этот раунд окончен!"
+    case resultedAlertFinalButtonText = "Сыграть ещё раз"
 }

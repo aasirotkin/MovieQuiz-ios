@@ -18,7 +18,7 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
 
     private var currentQuestion: QuizQuestion? = nil
     private var currentQuestionIndex = 0
-    private var correctAnswersPrivate = 0
+    private(set) var correctAnswers = 0
 
     init (controller: MovieQuizViewControllerProtocol) {
         self.controller = controller
@@ -28,12 +28,6 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
         statisticService = StatisticServiceUserDefaults()
     }
 
-    var correctAnswers: Int {
-        get {
-            correctAnswersPrivate
-        }
-    }
-
     func startGame() {
         controller?.showProgress(isShown: true)
         questionFactory?.loadData()
@@ -41,7 +35,7 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
 
     func restartGame() {
         currentQuestionIndex = 0
-        correctAnswersPrivate = 0
+        correctAnswers = 0
     }
 
     func yesButtonClicked() {
@@ -97,7 +91,7 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
             title: "Ошибка",
             message: message,
             buttonText: "Попробовать ещё раз") {
-            }
+        }
     }
 
     private func requestNextQuestion() {
@@ -107,7 +101,7 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
     private func showAnswerResult(isCorrect: Bool) {
         controller?.setEnabled(isEnable: false)
         if isCorrect {
-            correctAnswersPrivate += 1
+            correctAnswers += 1
         }
         controller?.highlightResult(isCorrect: isCorrect)
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
@@ -145,7 +139,7 @@ final class MovieQuizPresenter : QuestionFactoryDelegate {
 
     private func createTextResult(stat: StatisticServiceProtocol?) -> String {
         let currentResult =
-            "Ваш результат: \(correctAnswersPrivate) из \(questionsAmount)"
+            "Ваш результат: \(correctAnswers) из \(questionsAmount)"
         guard let stat = stat else {
             return currentResult
         }

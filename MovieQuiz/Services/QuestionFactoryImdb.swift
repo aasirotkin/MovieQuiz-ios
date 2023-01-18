@@ -57,12 +57,12 @@ class QuestionFactoryImdb : QuestionFactoryProtocol {
     }
 
     private enum CompareType : String, CaseIterable {
-        case More = "больше чем"
-        case Less = "меньше чем"
-        case Equal = "равен"
-        case NotMore = "не больше"
-        case NotLess = "не меньше"
-        case NotEqual = "не равен"
+        case more = "больше чем"
+        case less = "меньше чем"
+        case equal = "равен"
+        case notMore = "не больше"
+        case notLess = "не меньше"
+        case notEqual = "не равен"
     }
 
     private func createQuestion() -> QuizQuestion? {
@@ -90,17 +90,17 @@ class QuestionFactoryImdb : QuestionFactoryProtocol {
     private func getCompareResult(
         compareType: CompareType, rating: Float, randomRating: Float) -> Bool {
         switch(compareType) {
-        case .More:
+        case .more:
             return rating > randomRating
-        case .Less:
+        case .less:
             return rating < randomRating
-        case .Equal:
+        case .equal:
             return rating == randomRating
-        case .NotMore:
+        case .notMore:
             return rating <= randomRating
-        case .NotLess:
+        case .notLess:
             return rating >= randomRating
-        case .NotEqual:
+        case .notEqual:
             return rating != randomRating
         }
     }
